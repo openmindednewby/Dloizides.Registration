@@ -1,0 +1,27 @@
+name: ci
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PACKAGE_DENYLIST: ${{ secrets.PACKAGE_DENYLIST }}
+      PACKAGE_DENYLIST_REQUIRED: ${{ github.event.pull_request.head.repo.fork && '0' || '1' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - run: dotnet test Dloizides.Registration.slnx
+      - name: Denied-word guard must run
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        shell: bash
+        run: |
+          dotnet test Dloizides.Registration.slnx --filter "FullyQualifiedName~PackageFiles_WhenScanned_NameNoDeniedWord" | tee guard.log
+          grep -Eq 'Passed:\s+[1-9]' guard.log

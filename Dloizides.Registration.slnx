@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Dloizides.Registration/Dloizides.Registration.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Dloizides.Registration.Tests/Dloizides.Registration.Tests.csproj" />
+  </Folder>
+</Solution>

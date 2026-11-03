@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework></TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <RootNamespace>Dloizides.Registration</RootNamespace>
+    <PackageId>Dloizides.Registration</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Dloizides.Registration.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dloizides.Jobs" Version="1.4.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.6" Condition="'$(TargetFramework)' == 'net10.0'" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" Condition="'$(TargetFramework)' == 'net8.0'" />
+  </ItemGroup>
+
+</Project>

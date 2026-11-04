@@ -11,6 +11,16 @@ public sealed class AcReg5GraceTests
     private static readonly TimeSpan Grace = TimeSpan.FromDays(30);
 
     [Fact]
+    public void Grace_WithDefaultOptions_IsTwentyOneDays()
+    {
+        var expected = TimeSpan.FromDays(21);
+
+        var grace = new DeletionOptions().Grace;
+
+        grace.ShouldBe(expected);
+    }
+
+    [Fact]
     public void Resolve_WithMarkerAndVerified_ReturnsZero()
     {
         var policy = Policy(Marker);

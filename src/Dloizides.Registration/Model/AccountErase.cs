@@ -12,9 +12,11 @@ public sealed record AccountEraseRequest(
 
 /// <param name="RecordLoginConfirmed">Stores that this request matched the login, before anything is removed.</param>
 /// <param name="AnnounceErasure">Publishes the user-deleted event, after disable and before delete.</param>
+/// <param name="ParticipantsConfirmed">After disable: false keeps the login and leaves the request open. Null means nothing to wait for.</param>
 public sealed record AccountEraseCallbacks(
     Func<CancellationToken, Task> RecordLoginConfirmed,
-    Func<CancellationToken, Task> AnnounceErasure);
+    Func<CancellationToken, Task> AnnounceErasure,
+    Func<CancellationToken, Task<bool>>? ParticipantsConfirmed = null);
 
 public sealed record OperatorCloseRequest(string OperatorId, OperatorCloseMode Mode = OperatorCloseMode.LoginAbsentOnly);
 
@@ -52,6 +54,7 @@ public enum AccountEraseOutcome
     LoginStillMatches = 7,
     OperatorClosed = 8,
     EmailMismatch = 9,
+    AwaitingParticipants = 10,
 }
 
 public sealed record AccountRestoreRequest(string Realm, string UserId, string TenantId, DateTime RetainUntil);

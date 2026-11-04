@@ -85,7 +85,7 @@ public sealed class ScreenOptions
 
 public sealed class DeletionOptions
 {
-    public TimeSpan Grace { get; set; } = TimeSpan.FromDays(30);
+    public TimeSpan Grace { get; set; } = TimeSpan.FromDays(21);
 
     public string? TestMarkerPattern { get; set; }
 

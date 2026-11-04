@@ -113,6 +113,16 @@ internal sealed class Harness : IDisposable
         return await new RegistrationAttemptStore<AttemptsDbContext>(db).TryBeginAsync(attempt, CancellationToken.None);
     }
 
+    public async Task<AccountEraseResult> EraseAsync(AccountEraseRequest request, Func<CancellationToken, Task<bool>> participantsConfirmed)
+    {
+        await using var db = NewContext();
+        var callbacks = new AccountEraseCallbacks(
+            _ => RecordAsync("confirm"),
+            _ => RecordAsync("announce"),
+            participantsConfirmed);
+        return await Eraser(db).EraseAsync(request, callbacks, CancellationToken.None);
+    }
+
     public async Task<AccountEraseResult> EraseAsync(AccountEraseRequest request)
     {
         await using var db = NewContext();

@@ -118,6 +118,9 @@ public sealed class AccountEraser
 
     private static AccountEraseResult Refused(AccountEraseOutcome outcome) => new(outcome, TenantRemoved: false);
 
+    private static Task<bool> ParticipantsConfirmedAsync(AccountEraseCallbacks callbacks, CancellationToken cancellationToken) =>
+        callbacks.ParticipantsConfirmed?.Invoke(cancellationToken) ?? Task.FromResult(true);
+
     private static bool BelongsTo(LoginInfo login, string tenantId) =>
         string.Equals(login.TenantId, tenantId, StringComparison.Ordinal);
 
@@ -142,9 +145,11 @@ public sealed class AccountEraser
         var login = await _identity.FindByIdAsync(realm, request.UserId, cancellationToken);
         if (login is null)
         {
-            return request.LoginPreviouslyConfirmed
-                ? await FinishHardDeleteAsync(realm, request, AccountEraseOutcome.ResumedAfterLoginDeleted, request.Email, cancellationToken)
-                : RefusedWithAlert(realm, request, AccountEraseOutcome.LoginNotFound);
+            if (!request.LoginPreviouslyConfirmed)
+                return RefusedWithAlert(realm, request, AccountEraseOutcome.LoginNotFound);
+            if (!await ParticipantsConfirmedAsync(callbacks, cancellationToken))
+                return Refused(AccountEraseOutcome.AwaitingParticipants);
+            return await FinishHardDeleteAsync(realm, request, AccountEraseOutcome.ResumedAfterLoginDeleted, request.Email, cancellationToken);
         }
 
         if (!BelongsTo(login, request.TenantId))
@@ -152,6 +157,8 @@ public sealed class AccountEraser
 
         await callbacks.RecordLoginConfirmed(cancellationToken);
         await _identity.SetEnabledAsync(realm, request.UserId, enabled: false, cancellationToken);
+        if (!await ParticipantsConfirmedAsync(callbacks, cancellationToken))
+            return Refused(AccountEraseOutcome.AwaitingParticipants);
         await callbacks.AnnounceErasure(cancellationToken);
         await _identity.DeleteAsync(realm, request.UserId, cancellationToken);
         return await FinishHardDeleteAsync(realm, request, AccountEraseOutcome.Erased, request.Email ?? login.Email, cancellationToken);

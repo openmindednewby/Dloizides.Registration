@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace Dloizides.Registration.Screening;
 
-internal sealed class SharedRegistrationScreen : IRegistrationScreen
+public sealed class SharedRegistrationScreen : IRegistrationScreen
 {
     private const string GlobalKey = "global";
     private const string UnknownClientKey = "unknown-client";
